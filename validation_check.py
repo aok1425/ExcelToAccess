@@ -16,15 +16,15 @@ from numpy import float64
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-filename1 = r"\\dotwell\dfs\Storage\Departments\DotWell\CDPP\Case Management\Quarterly BPHC Reporting\Access Template 2014\e2Boston_RsrPlus-empty.mdb"
-# filename1 = '../e2Boston_RsrPlus-empty.mdb'
+# filename1 = r"\\dotwell\dfs\Storage\Departments\DotWell\CDPP\Case Management\Quarterly BPHC Reporting\Access Template 2014\e2Boston_RsrPlus-empty.mdb"
+filename1 = './e2Boston_RsrPlus-empty.mdb'
 time = datetime.now().strftime("%Y%m%d_%H%M")
-filename2 = "../utilization_for_E2Boston" + time + ".mdb"
+filename2 = "./utilization_for_E2Boston" + time + ".mdb"
 
 def append_text(text):
 	logger.info(text)			
 
-handler = logging.FileHandler('../log' + time + '.txt')
+handler = logging.FileHandler('./log' + time + '.txt')
 handler.setLevel(logging.INFO)
 
 formatter = logging.Formatter('%(message)s')

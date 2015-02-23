@@ -1,0 +1,17 @@
+maybe screen saying hello and saying what program will do
+
+##
+
+if error, display in dialog box, and/or save in dir
+
+##
+
+don't put location of access file on frame. if no access file found,
+say 'we couldn't find file in <dir>.'
+open dialog box to have user locate file
+say 'for future, please put file in <dir>'
+
+instead of making log text files,
+have it output to the program (text widget?)
+
+test using file we have from Rima
