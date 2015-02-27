@@ -1,36 +1,24 @@
-# filenames MUST start w COD or DOR, for MCMOnlyUnit()
-# put template file in permanent location
-
-# to do: if log/Access file already exist for that time, make another one w suffix '2'
+# couldn't use logging module bc it req'd me to instantiate Text widget, which req'd a parent
+# I want to do that later, in tkinter_gui.py
+# http://stackoverflow.com/questions/13318742/python-logging-to-tkinter-text-widget
 
 import pandas as pd
 import pypyodbc 
 import os
 import re
-import logging
 from datetime import datetime
 from math import isnan
 from shutil import copy as copy_file
 from numpy import float64
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
-# filename1 = r"\\dotwell\dfs\Storage\Departments\DotWell\CDPP\Case Management\Quarterly BPHC Reporting\Access Template 2014\e2Boston_RsrPlus-empty.mdb"
 filename1 = './e2Boston_RsrPlus-empty.mdb'
 time = datetime.now().strftime("%Y%m%d_%H%M")
 filename2 = "./utilization_for_E2Boston" + time + ".mdb"
 
+log = []
+
 def append_text(text):
-	logger.info(text)			
-
-handler = logging.FileHandler('./log' + time + '.txt')
-handler.setLevel(logging.INFO)
-
-formatter = logging.Formatter('%(message)s')
-handler.setFormatter(formatter)
-
-logger.addHandler(handler)			
+	log.append(text)		
 
 def transform_MRN(x):
 	"""For .map(). Adds 0s when inputted an MRN as a float converted to a str.
@@ -41,6 +29,16 @@ def transform_MRN(x):
 		return num_zeros * '0' + x[:8 - num_zeros]
 	else:
 		raise Exception('Something wrong w MRN')
+
+def transform_SSN(x):
+	"""Just like transform_MRN(), but for SSN."""
+	x = str(int(float(x)))
+	num_zeros = 4 - len(x)
+	if len(x) <= 4:
+		return num_zeros * '0' + x
+	else:
+		print x, type(x)
+		raise Exception('Something wrong w SSN')		
 	
 def make_initials(row_num, df):
 	pre_join = [df.FirstInitial[row_num], df.FirstInitial3[row_num], df.LastInitial[row_num], df.LastInitial3[row_num]]
@@ -95,7 +93,7 @@ def check_MCMOnlyTransUnit(df, health_center):
 			'MCMUnitTime': 'MCMwithTransUnitTime',
 			'MCMOnlyUnit': 'MCMwithTransOnlyUnit'}, inplace=True)			
 
-def write_to_ClientReportService(df, health_center):
+def write_to_ClientReportService(df, c, health_center):
 	"""Input a DataFrame, and write to the empty Access template in the same folder."""
 	if health_center == 'DOR':
 		for i in df.index:
@@ -111,7 +109,7 @@ def write_to_ClientReportService(df, health_center):
 	c.commit()
 	append_text('Writing to ClientReportService table: OK.')
 		
-def write_to_ClientReport(df):
+def write_to_ClientReport(df, c):
 	"""Input a DataFrame, and write to the empty Access template in the same folder."""
 	df = df.ix[:,'MRN':'GenderID'].drop_duplicates()
 	for i in df.index:
@@ -124,7 +122,10 @@ def write_to_ClientReport(df):
 
 class ValidationCheckerExcelToAccess(object):
 	"""Takes in XLS, does various validation checks, and writes to new Access file."""
-	def __init__(self, filename):
+	def __init__(self):
+		pass
+
+	def load(self, filename):
 		self.header_rows = 3 # num of rows on top of file until you get to the column names
 		self.df = pd.io.excel.read_excel(filename, header=self.header_rows)
 		self.health_center = find_health_center(filename.upper())
@@ -137,6 +138,7 @@ class ValidationCheckerExcelToAccess(object):
 			self.df = self.df.ix[:self.df.shape[0] - 2]
 			
 		self.df.MRN = self.df.MRN.astype(str).map(transform_MRN)
+		self.df.Last4SSN = self.df.Last4SSN.astype(str).map(transform_SSN)
 		
 	def check_moms_name(self, df):
 		"""Input the DataFrame, and find those rows for which the mom's name contains a number. For those rows, write to file."""
@@ -157,7 +159,7 @@ class ValidationCheckerExcelToAccess(object):
 				append_text(text)
 				raise Exception(text)
 
-	def run(self):
+	def save(self, filename_path):
 		self.preprocess()
 		# self.df = self.df.head(2) # for testing
 		check_MCMOnlyTransUnit(self.df, self.health_center)
@@ -165,31 +167,27 @@ class ValidationCheckerExcelToAccess(object):
 		self.check_moms_name(self.df)
 		self.df.drop_duplicates(inplace=True)
 
+		db = pypyodbc.win_connect_mdb(filename_path)
+		c = db.cursor()
+
 		try:
-			write_to_ClientReport(self.df)
-			write_to_ClientReportService(self.df, 'DOR') # bc of the '../'	
+			write_to_ClientReport(self.df, c)
+			write_to_ClientReportService(self.df, c, 'DOR') # bc of the '../'	
 		except pypyodbc.IntegrityError:
 			append_text("Check the Excel file. An SSN for one of the rows may be missing, where it should not.")
 			raise Exception()
+		finally:
+			db.close()
 			
-if __name__ == '__main__':
-	try:
-		copy_file(filename1, filename2)
-	except IOError: # Can alternatively write whole traceback to log using logger.exception()
-		append_text("Program can't find the empty Access template. This file should be \\dotwell\dfs\Storage\Departments\DotWell\CDPP\Case Management\Quarterly BPHC Reporting\Access template 2014\e2Boston_RsrPlus-empty.mdb.")
-		
-	db = pypyodbc.win_connect_mdb(filename2)
-	c = db.cursor()
+def test():
+	copy_file(filename1, filename2)
 
-	for file_ in os.listdir('..'):
-		file_ = file_.upper()
-		if 'COD' in file_:
-			append_text('For Codman: \n')
-			ValidationCheckerExcelToAccess('../' + file_).run()
-		elif 'DOR' in file_:
-			append_text('\nFor Dorchester House: \n')			
-			ValidationCheckerExcelToAccess('../' + file_).run()
-	
-	db.close()
-	append_text("\nDone! Press any key to exit.")
-	raw_input("")
+	append_text('For Codman: \n')
+	cs = ValidationCheckerExcelToAccess()
+	cs.load(r"C:/Users/Alex/Desktop/old_COD test.xls")
+	cs.save(filename2)
+
+	# and then do it again for DH
+
+	append_text("\nDone!")
+	raw_input("Done! Press any key to exit")
