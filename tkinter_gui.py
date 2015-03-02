@@ -1,19 +1,13 @@
-# have prog throw errors at the right time (like if DOR file is malformatted)
-# clean up exceptions
-
-# account for all possible user errors!
-# if only CS or only DH, have dialog window open
-
-# any way to put the traceback exceptions into the error msg
-# and then make that text so Carole can email it to me?
-
-# UX thinking: error msg for missing files shld not close prog, while from error in prog shld
+# idk why i can't reset log in write_access_file(). even when i do global, sth's not working.
+# must be my misunderstanding around scope
 
 from Tkinter import *
 from tkFileDialog import *
 import tkMessageBox as messagebox
 from validation_check import *
 from os import remove as delete_file
+from datetime import datetime
+from shutil import copy as copy_file
 
 def set_utl_location_cs(*args):
 	dir_path = askopenfilename()
@@ -27,45 +21,34 @@ def set_access_file_location(*args):
 	dir_path = askopenfilename()
 	access_file.set(dir_path)	
 
-def make_test():
-	c = 'something'
-	Test('a').run()
+def setup_access_file(*args):
+	if utl_file_dh.get() and utl_file_cs.get():
+		filename1 = './e2Boston_RsrPlus-empty.mdb'
+		time = datetime.now().strftime("%Y%m%d_%H%M_%S")
+		filename2 = "./utilization_for_E2Boston" + time + ".mdb"		
+		copy_file(filename1, filename2)
+		
+		try:
+			write_access_file(filename2)
+		except:
+			delete_file(filename2)
+			open_error_log_window()
+			raise
 
-def make_access_file(*args):
-	copy_file(filename1, filename2)
+	else:
+		messagebox.showinfo(message='Choose both CS utilization file and DH utilization file.')		
 
-	# append_text('For Codman: \n')
-	# cs = ValidationCheckerExcelToAccess()
-	# cs.load(utl_file_cs.get())
-	# cs.save(filename2)
+def write_access_file(filename):
+	# Done so that I didn't have to copy the below lines if I wanted to catch exceptions
+	cs = ValidationCheckerExcelToAccess('COD')
+	cs.load(utl_file_cs.get())
+	cs.save(filename)
 
-	# append_text('\nFor Dorchester House: \n')			
-	# dh = ValidationCheckerExcelToAccess()
-	# dh.load(utl_file_dh.get())
-	# dh.save(filename2)	
+	dh = ValidationCheckerExcelToAccess('DOR')
+	dh.load(utl_file_dh.get())
+	dh.save(filename)	
 
-	# append_text("\nDone!")
-
-	# messagebox.showinfo(message='All done with no errors.')
-
-	try:
-		append_text('For Codman: \n')
-		cs = ValidationCheckerExcelToAccess()
-		cs.load(utl_file_cs.get())
-		cs.save(filename2)
-
-		# append_text('\nFor Dorchester House: \n')			
-		# dh = ValidationCheckerExcelToAccess()
-		# dh.load(utl_file_dh.get())
-		# dh.save(filename2)	
-
-		append_text("\nDone!")
-		messagebox.showinfo(message='All done with no errors.')
-	except:
-		delete_file(filename2)
-		open_error_log_window()
-		# messagebox.showinfo(message='This is a test')
-		# messagebox.showinfo(message="Something was wrong. There was an error. Program didn't complete.\n\nSee log{}.txt".format(time))
+	messagebox.showinfo(message='All done with no errors.\nAccess file is in same folder as this program.')	
 
 def open_error_log_window():
 	# maybe make this have 2 cols, w : as separator?
@@ -76,9 +59,13 @@ def open_error_log_window():
 	mainframe.columnconfigure(0, weight=1)
 	mainframe.rowconfigure(0, weight=1)
 
-	Label(mainframe, text="There were errors. Access file was not made. Please fix these errors.").grid(column=1, row=1)
-	Label(mainframe, text="\n".join(log)).grid(column=1, row=3, sticky=W)
-	Button(mainframe, text='OK', command=root.destroy).grid(column=1, columnspan=4, row=4)
+	Label(mainframe, text="Please fix these errors:").grid(column=1, row=1)
+	Label(mainframe, text="\n".join(log)).grid(column=1, row=2, sticky=W)
+	Label(mainframe, text="Access file was not made.").grid(column=1, row=3)
+	Button(mainframe, text='OK', command=second_root.destroy).grid(column=1, columnspan=4, row=4)
+
+	for child in mainframe.winfo_children():
+		child.grid_configure(padx=5, pady=5)
 
 	# Text(mainframe)
 
@@ -106,10 +93,8 @@ Label(mainframe, text="Choose DH utilization file:").grid(column=1, row=3, stick
 Label(mainframe, textvariable=utl_file_dh).grid(column=2, row=3, sticky=W)
 Button(mainframe, text='Browse', command=set_utl_location_dh).grid(column=3, row=3, sticky=W)
 
-Button(mainframe, text='Make Access file', command=make_access_file).grid(column=1, columnspan=4, row=4)
-Label(mainframe, text="Access file will be stored in same folder as this program.").grid(column=1, columnspan=4, row=5)
-
-Label(mainframe, text="Last updated February 2015").grid(row=6, column=1, columnspan=4)
+Button(mainframe, text='Make Access file', command=setup_access_file).grid(column=1, columnspan=4, row=4)
+Label(mainframe, text="Access file will be stored in same folder as this program.\nLast updated February 2015").grid(column=1, columnspan=4, row=5)
 
 
 for child in mainframe.winfo_children():

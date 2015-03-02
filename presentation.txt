@@ -1,0 +1,13 @@
+Validation Check program, February 2015
+for utilization report
+
+
+before: Rima -> you guys using Excel & Access -> Access file -> E2Boston website
+now: Rima -> this Validation Check program -> Access file -> E2Boston website
+
+things to point out:
+* uses MDB (Access file) template
+* don't separate program from folder
+
+after creating the Access file:
+use Carmen's guide or call BPHC to upload file to E2Boston -> XML file -> XML upload like in Carmen's guide

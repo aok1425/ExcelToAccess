@@ -1,3 +1,15 @@
+# didn't need this anymore when i chose actual CS and DH files via GUI
+def find_health_center(filename_path):
+	"""From filename path, find whether health center is COD or DOR.
+	If COD or DOR is in filename path multiple times, it will choose the first one :("""
+	match = re.search('COD', filename_path)
+	if match:
+		return match.group()
+	else:
+		match = re.search('DOR', filename_path)
+		if match:
+			return match.group()
+
 # my attempt to have user locate Access file on program
 # now i think it's better to look in default loc, and if it's not there, ask user to locate it.
 def access_file_location_check():

@@ -1,15 +1,21 @@
-maybe screen saying hello and saying what program will do
-
-##
-
-if error, display in dialog box
-
-##
-
-test using file we have from Rima
-
-##
 http://www.tkdocs.com/tutorial/widgets.html
 http://effbot.org/tkinterbook/
 http://www.logix4u.net/component/content/article/27-tutorials/44-how-to-create-windows-executable-exe-from-python-script
 http://stackoverflow.com/questions/112698/py2exe-generate-single-executable-file#113014
+
+##
+
+for video/readme:
+program is rima's excel -> access -> E2Boston
+
+put empty mdb template in .,
+then if that file needs to be changed,
+they can put it there
+
+tell Carole in email that she can delete folder w mdb template
+
+don't separate file from folder
+
+if error, have CArole show me original Exception and make text file from it, or display it
+
+Known Error: old errors still on Label

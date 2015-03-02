@@ -1,0 +1,15 @@
+Validation Check program, February 2015
+for utilization
+
+
+errors this program catches:
+* choosing wrong files between CS and DH
+* no SSN
+* Mom's name is blank or contains number
+
+known error:
+* shows old errors when re-running program
+
+
+source code (Python) is at: github.com/aok1425
+aok1425@gmail.com
