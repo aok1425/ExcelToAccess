@@ -1,1 +1,6 @@
 .DS_Store
+*.mdb
+*.zip
+build
+dist
+*.pyc
