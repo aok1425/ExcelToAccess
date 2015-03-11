@@ -15,3 +15,12 @@ Build program by running `python setup.py`. Or, run it via `python tkinter_gui.p
 These tests might no longer work since I updated the code. What I had said before I made a GUI was:
 
 > This requires Excel files to be in the `/tests` folder. Run `nosetests` at the parent directory. Tests only cover the validations themselves, not the rest of the script.
+
+# Changelog
+v3 3/10/2015
+- Rima changed columns of COD Excel file, adding MCMwithTransUnitTime and MCMwithTransOnlyUnit columns to take the place of MCMUnitTime	and MCMOnlyUnit.
+- Alex removed the now-unnecessary check_MCMOnlyTransUnit() and placed it in scrap.py.
+
+v2 3/1/2015
+- made instructional videos (on Dropbox)
+- added Tkinter GUI

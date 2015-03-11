@@ -1,3 +1,11 @@
+# check_MCMOnlyTransUnit(self.df, self.health_center) # don't need to do this anymore bc Rima chg'd the cols in COD file
+def check_MCMOnlyTransUnit(df, health_center):
+	"""If DOR, it's fine. If COD, move columns. Will have to chg write() too."""
+	if health_center == 'COD':
+		df = df.rename(columns = {
+			'MCMUnitTime': 'MCMwithTransUnitTime',
+			'MCMOnlyUnit': 'MCMwithTransOnlyUnit'}, inplace=True)	
+
 # didn't need this anymore when i chose actual CS and DH files via GUI
 def find_health_center(filename_path):
 	"""From filename path, find whether health center is COD or DOR.

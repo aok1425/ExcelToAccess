@@ -52,13 +52,6 @@ def convert_nan_to_none(a_tuple):
 	
 	return tuple(temp_list)
 
-def check_MCMOnlyTransUnit(df, health_center):
-	"""If DOR, it's fine. If COD, move columns. Will have to chg write() too."""
-	if health_center == 'COD':
-		df = df.rename(columns = {
-			'MCMUnitTime': 'MCMwithTransUnitTime',
-			'MCMOnlyUnit': 'MCMwithTransOnlyUnit'}, inplace=True)			
-
 def write_to_ClientReportService(df, c, health_center):
 	# could put this in class, then I wouldn't need `health_center` arg
 	"""Input a DataFrame, and write to the empty Access template in the same folder."""
@@ -159,7 +152,6 @@ class ValidationCheckerExcelToAccess(object):
 				self.append_text("You chose the Codman Excel file for Dorchester House.")
 				raise
 
-		check_MCMOnlyTransUnit(self.df, self.health_center)
 		self.check_moms_name(self.df)
 		self.df.drop_duplicates(inplace=True)
 
