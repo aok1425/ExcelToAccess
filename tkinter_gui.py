@@ -27,7 +27,10 @@ def setup_access_file(*args):
 		time = datetime.now().strftime("%Y%m%d_%H%M_%S")
 		filename2 = "./utilization_for_E2Boston" + time + ".mdb"		
 		copy_file(filename1, filename2)
-		
+
+		global log # I think this should fix the bug of having the old log in the current error msg
+		log = []
+
 		try:
 			write_access_file(filename2)
 		except:
