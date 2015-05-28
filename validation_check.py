@@ -70,6 +70,16 @@ def write_to_ClientReportService(df, c, health_center):
 
 	c.commit()
 		
+def write_to_ClientReportService(df, c):
+	"""Input a DataFrame, and write to the empty Access template in the same folder."""
+	for i in df.index:
+		entry = df.MRN[i], df.ServiceDate[i], df.ServiceTime[i], df.Employee[i], df.ServiceID[i], df.SubserviceID[i], df.GrantID[i], df.DrugAssistanceDateReimburse[i], df.DrugAssistanceUnit[i], df.FoodUnit[i], df.NutritionalAssessment[i], df.NutritionalCounselingTime[i], df.MedicalNutritionalTherapyUnit[i], df.MedicalNutritionalTherapyAssessment[i], df.MedicalNutritionalTherapyCounselingTime[i], df.RentalAssistanceUnit[i], df.UtilityAssistanceUnit[i], df.HousingAdvocacyUnit[i], df.HousingAdvocacyPlacementUnit[i], df.MCMwithTransUnitTime[i], df.MCMwithTransOnlyUnit[i]
+		entry = convert_nan_to_none(entry)
+		print entry
+		c.execute('''INSERT INTO ClientReportService(ClientReportID, ServiceDate, ServiceTime, Employee, ServiceID, SubserviceID, GrantID, DrugAssistanceDateReimbursed, DrugAssistanceUnit, FoodUnit, NutritionalAssessment, NutritionalCounselingTime, MedicalNutritionalTherapyUnit, MedicalNutritionalTherapyAssessment, MedicalNutritionalTherapyCounselingTime, RentalAssistanceUnit, UtilityAssistanceUnit1, HousingAdvocacyUnit, HousingAdvocacyPlacementUnit, MCMwithTransUnitTime, MCMwithTransOnlyUnit) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''', entry)
+
+	c.commit()
+
 def write_to_ClientReport(df, c):
 	"""Input a DataFrame, and write to the empty Access template in the same folder."""
 	df = df.ix[:,'MRN':'GenderID'].drop_duplicates()
@@ -161,7 +171,7 @@ class ValidationCheckerExcelToAccess(object):
 
 		try:
 			write_to_ClientReport(self.df, c)
-			write_to_ClientReportService(self.df, c, 'DOR') # I'd need to be in the office to figure out why 'COD' isn't needed. maybe related to check_MCMOnlyTransUnit()?
+			write_to_ClientReportService(self.df, c)
 		except pypyodbc.IntegrityError:
 			self.append_text("Check the Excel file. An SSN for one of the rows may be missing, where it should not.")
 			raise
