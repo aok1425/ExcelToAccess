@@ -70,15 +70,15 @@ def write_to_ClientReportService(df, c, health_center):
 
 	c.commit()
 		
-def write_to_ClientReportService(df, c):
-	"""Input a DataFrame, and write to the empty Access template in the same folder."""
-	for i in df.index:
-		entry = df.MRN[i], df.ServiceDate[i], df.ServiceTime[i], df.Employee[i], df.ServiceID[i], df.SubserviceID[i], df.GrantID[i], df.DrugAssistanceDateReimburse[i], df.DrugAssistanceUnit[i], df.FoodUnit[i], df.NutritionalAssessment[i], df.NutritionalCounselingTime[i], df.MedicalNutritionalTherapyUnit[i], df.MedicalNutritionalTherapyAssessment[i], df.MedicalNutritionalTherapyCounselingTime[i], df.RentalAssistanceUnit[i], df.UtilityAssistanceUnit[i], df.HousingAdvocacyUnit[i], df.HousingAdvocacyPlacementUnit[i], df.MCMwithTransUnitTime[i], df.MCMwithTransOnlyUnit[i]
-		entry = convert_nan_to_none(entry)
-		print entry
-		c.execute('''INSERT INTO ClientReportService(ClientReportID, ServiceDate, ServiceTime, Employee, ServiceID, SubserviceID, GrantID, DrugAssistanceDateReimbursed, DrugAssistanceUnit, FoodUnit, NutritionalAssessment, NutritionalCounselingTime, MedicalNutritionalTherapyUnit, MedicalNutritionalTherapyAssessment, MedicalNutritionalTherapyCounselingTime, RentalAssistanceUnit, UtilityAssistanceUnit1, HousingAdvocacyUnit, HousingAdvocacyPlacementUnit, MCMwithTransUnitTime, MCMwithTransOnlyUnit) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''', entry)
+# def write_to_ClientReportService(df, c):
+# 	"""Input a DataFrame, and write to the empty Access template in the same folder."""
+# 	for i in df.index:
+# 		entry = df.MRN[i], df.ServiceDate[i], df.ServiceTime[i], df.Employee[i], df.ServiceID[i], df.SubserviceID[i], df.GrantID[i], df.DrugAssistanceDateReimburse[i], df.DrugAssistanceUnit[i], df.FoodUnit[i], df.NutritionalAssessment[i], df.NutritionalCounselingTime[i], df.MedicalNutritionalTherapyUnit[i], df.MedicalNutritionalTherapyAssessment[i], df.MedicalNutritionalTherapyCounselingTime[i], df.RentalAssistanceUnit[i], df.UtilityAssistanceUnit[i], df.HousingAdvocacyUnit[i], df.HousingAdvocacyPlacementUnit[i], df.MCMwithTransUnitTime[i], df.MCMwithTransOnlyUnit[i]
+# 		entry = convert_nan_to_none(entry)
+# 		print entry
+# 		c.execute('''INSERT INTO ClientReportService(ClientReportID, ServiceDate, ServiceTime, Employee, ServiceID, SubserviceID, GrantID, DrugAssistanceDateReimbursed, DrugAssistanceUnit, FoodUnit, NutritionalAssessment, NutritionalCounselingTime, MedicalNutritionalTherapyUnit, MedicalNutritionalTherapyAssessment, MedicalNutritionalTherapyCounselingTime, RentalAssistanceUnit, UtilityAssistanceUnit1, HousingAdvocacyUnit, HousingAdvocacyPlacementUnit, MCMwithTransUnitTime, MCMwithTransOnlyUnit) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''', entry)
 
-	c.commit()
+# 	c.commit()
 
 def write_to_ClientReport(df, c):
 	"""Input a DataFrame, and write to the empty Access template in the same folder."""
@@ -116,6 +116,21 @@ class ValidationCheckerExcelToAccess(object):
 		self.check_blank_SSN(self.df)
 		self.df.Last4SSN = self.df.Last4SSN.astype(str).map(transform_SSN)
 
+		# turns .BirthGenderID[i], df.GenderID[i] into int types
+		self.df.BirthGenderID = self.df.BirthGenderID.astype(int)
+		self.df.GenderID = self.df.GenderID.astype(int)
+
+		self.df.GrantID = self.df.GrantID.astype(int)
+		self.df.ServiceID = self.df.ServiceID.astype(int)
+		self.df.SubserviceID = self.df.SubserviceID.astype(int)
+
+		if self.health_center == "COD":
+			self.df.MCMUnitTime = self.df.MCMUnitTime.astype(int)
+			self.df.MCMOnlyUnit = self.df.MCMOnlyUnit.astype(int)
+		elif self.health_center == "DOR":
+			self.df.MCMwithTransUnitTime = self.df.MCMwithTransUnitTime.astype(int)
+			self.df.MCMwithTransOnlyUnit = self.df.MCMwithTransOnlyUnit.astype(int)			
+
 	def check_moms_name(self, df):
 		"""Input the DataFrame, and find those rows for which the mom's name contains a number. For those rows, write to file."""
 		names_of_moms = df.MothersFirstName.map(lambda x: pd.isnull(x) or ('0' in x) or ('1' in x) or ('2' in x) or ('3' in x) or ('4' in x) or ('5' in x) or ('6' in x) or ('7' in x) or ('8' in x) or ('9' in x))
@@ -152,7 +167,7 @@ class ValidationCheckerExcelToAccess(object):
 
 		if self.health_center == 'COD':
 			try:
-				self.df.MCMwithTransOnlyUnit.head(1)
+				self.df.MCMOnlyUnit.head(1)
 			except AttributeError:
 				self.append_text("You chose the Dorchester House Excel file for Codman.")
 				raise
@@ -171,7 +186,7 @@ class ValidationCheckerExcelToAccess(object):
 
 		try:
 			write_to_ClientReport(self.df, c)
-			write_to_ClientReportService(self.df, c)
+			write_to_ClientReportService(self.df, c, self.health_center)
 		except pypyodbc.IntegrityError:
 			self.append_text("Check the Excel file. An SSN for one of the rows may be missing, where it should not.")
 			raise

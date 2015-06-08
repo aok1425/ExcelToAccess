@@ -97,7 +97,7 @@ Label(mainframe, textvariable=utl_file_dh).grid(column=2, row=3, sticky=W)
 Button(mainframe, text='Browse', command=set_utl_location_dh).grid(column=3, row=3, sticky=W)
 
 Button(mainframe, text='Make Access file', command=setup_access_file).grid(column=1, columnspan=4, row=4)
-Label(mainframe, text="Access file will be stored in same folder as this program.\nLast updated February 2015").grid(column=1, columnspan=4, row=5)
+Label(mainframe, text="Access file will be stored in same folder as this program.\nLast updated June 2015").grid(column=1, columnspan=4, row=5)
 
 
 for child in mainframe.winfo_children():
