@@ -1,4 +1,4 @@
-# couldn't use logging module bc it req'd me to instantiate Text widget, which req'd a parent
+ 	# couldn't use logging module bc it req'd me to instantiate Text widget, which req'd a parent
 # I want to do that later, in tkinter_gui.py
 # http://stackoverflow.com/questions/13318742/python-logging-to-tkinter-text-widget
 
@@ -179,8 +179,15 @@ class ValidationCheckerExcelToAccess(object):
 			db.close()
 			
 def test():
-	from tkinter_gui import copy_file
-	copy_file(filename1, filename2)
+	# from tkinter_gui import copy_file
+	# copy_file(filename1, filename2)
+	from shutil import copy as copy_file
+	from datetime import datetime
+
+	filename1 = './e2Boston_RsrPlus-empty.mdb'
+	time = datetime.now().strftime("%Y%m%d_%H%M_%S")
+	filename2 = "./utilization_for_E2Boston" + time + ".mdb"	
+
 
 	cs = ValidationCheckerExcelToAccess('COD')
 	cs.load(r"C:/Users/Alex/Desktop/COD_test.xls")
