@@ -17,6 +17,10 @@ These tests might no longer work since I updated the code. What I had said befor
 > This requires Excel files to be in the `/tests` folder. Run `nosetests` at the parent directory. Tests only cover the validations themselves, not the rest of the script.
 
 # Changelog
+v3.1 6/8/2015
+- DOR is MCMwithTransUnitTime and MCMwithTransOnlyUnit. COD is MCMUnitTime and MCMOnlyUnit. I updated (re-updated?) validation_check.py to reflect this.
+- I also added a bunch of weirdly necessary cruft to not have any int64s in DataFrames. Not sure why this is an issue now.
+
 v3 3/10/2015
 - Rima changed columns of COD Excel file, adding MCMwithTransUnitTime and MCMwithTransOnlyUnit columns to take the place of MCMUnitTime	and MCMOnlyUnit.
 - Alex removed the now-unnecessary check_MCMOnlyTransUnit() and placed it in scrap.py.
